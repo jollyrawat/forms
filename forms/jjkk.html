@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admission Form</title>
+
+<style>
+
+/* ===== BASIC STYLE ===== */
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial;
+}
+
+body{
+background:#f3f5ff;
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
+}
+
+.container{
+display:flex;
+width:1100px;
+height:680px;
+background:#fff;
+border-radius:15px;
+overflow:hidden;
+box-shadow:0 10px 30px rgba(0,0,0,.2);
+}
+
+/* IMAGE BANNER */
+.left{
+flex:1;
+background:url("https://pbs.twimg.com/media/G6hpv3kaYAAc41D.jpg")
+no-repeat center;
+background-size:contain;
+}
+
+/* FORM */
+.form-box{
+flex:1;
+padding:30px;
+overflow-y:auto;
+}
+
+h2{margin-bottom:15px;}
+
+.input-group{margin-bottom:12px;}
+
+input,select{
+width:100%;
+padding:12px;
+border-radius:8px;
+border:1px solid #ccc;
+}
+
+.phone{
+display:flex;
+gap:10px;
+}
+
+.phone select{width:30%;}
+.phone input{width:70%;}
+
+/* PHOTO PREVIEW */
+.preview{
+width:100px;
+height:100px;
+border-radius:50%;
+object-fit:cover;
+display:none;
+margin-top:10px;
+border:2px solid #ccc;
+}
+
+/* CAPTCHA */
+.captcha-box{
+display:flex;
+align-items:center;
+gap:10px;
+margin-top:5px;
+}
+
+.captcha{
+background:#eee;
+padding:10px 15px;
+font-weight:bold;
+letter-spacing:3px;
+border-radius:6px;
+user-select:none;
+}
+
+/* BUTTON */
+button{
+width:100%;
+padding:14px;
+background:#e60023;
+border:none;
+color:white;
+border-radius:8px;
+font-size:16px;
+cursor:pointer;
+}
+
+button:hover{background:#c4001d;}
+
+.success{
+color:green;
+margin-top:10px;
+display:none;
+font-weight:bold;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="left"></div>
+
+<div class="form-box">
+
+<h2>Cultural Events Coordinator Registration</h2>
+
+<form id="form">
+
+<select required>
+<option value="">Prefix</option>
+<option>Mr.</option>
+<option>Mrs.</option>
+<option>Miss</option>
+</select>
+
+<input type="text" placeholder="First Name" required>
+<input type="text" placeholder="Last Name" required>
+
+<label></label>
+<input type="date" id="dob" required>
+
+<input type="number" id="age" placeholder="Age" readonly>
+
+<input type="email" placeholder="Email" required>
+
+<div class="phone">
+<select>
+<option>+91</option>
+<option>+1</option>
+</select>
+<input type="tel" id="phone" maxlength="10" placeholder="Phone Number" required>
+</div>
+
+<input type="password" id="pass" placeholder="Password" required>
+<input type="password" id="confirm" placeholder="Confirm Password" required>
+
+<!-- PHOTO UPLOAD -->
+<label>Upload Resume</label>
+<input type="file" id="photo" accept="image/*" required>
+<img id="preview" class="preview">
+
+<!-- CAPTCHA -->
+<div class="captcha-box">
+<div class="captcha" id="captcha"></div>
+<button type="button" onclick="generateCaptcha()">↻</button>
+</div>
+
+<input type="text" id="captchaInput" placeholder="Enter CAPTCHA" required>
+
+<button type="submit">Submit</button>
+
+<div id="msg" class="success">
+✅ Form Submitted Successfully
+</div>
+
+</form>
+
+</div>
+</div>
+
+<script>
+
+/* ===== AGE CALCULATION ===== */
+document.getElementById("dob").addEventListener("change",function(){
+
+let dob=new Date(this.value);
+let today=new Date();
+
+let age=today.getFullYear()-dob.getFullYear();
+let m=today.getMonth()-dob.getMonth();
+
+if(m<0||(m===0&&today.getDate()<dob.getDate())){
+age--;
+}
+
+document.getElementById("age").value=age>0?age:"";
+
+});
+
+/* ===== PHONE NUMBERS ONLY ===== */
+document.getElementById("phone").addEventListener("input",function(){
+this.value=this.value.replace(/[^0-9]/g,'');
+});
+
+/* ===== PHOTO PREVIEW ===== */
+document.getElementById("photo").addEventListener("change",function(){
+
+let file=this.files[0];
+if(file){
+let reader=new FileReader();
+
+reader.onload=function(e){
+let img=document.getElementById("preview");
+img.src=e.target.result;
+img.style.display="block";
+};
+
+reader.readAsDataURL(file);
+}
+
+});
+
+/* ===== CAPTCHA ===== */
+let currentCaptcha="";
+
+function generateCaptcha(){
+let chars="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+currentCaptcha="";
+
+for(let i=0;i<6;i++){
+currentCaptcha+=chars.charAt(
+Math.floor(Math.random()*chars.length)
+);
+}
+
+document.getElementById("captcha").innerText=currentCaptcha;
+}
+
+generateCaptcha();
+
+/* ===== FORM VALIDATION ===== */
+document.getElementById("form").addEventListener("submit",function(e){
+
+e.preventDefault();
+
+let pass=document.getElementById("pass").value;
+let confirm=document.getElementById("confirm").value;
+let userCaptcha=document.getElementById("captchaInput").value;
+
+if(pass!==confirm){
+alert("Passwords do not match");
+return;
+}
+
+if(userCaptcha!==currentCaptcha){
+alert("Wrong CAPTCHA");
+generateCaptcha();
+return;
+}
+
+document.getElementById("msg").style.display="block";
+this.reset();
+document.getElementById("preview").style.display="none";
+generateCaptcha();
+
+});
+
+</script>
+
+</body>
+</html>
